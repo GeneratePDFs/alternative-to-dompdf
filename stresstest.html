@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Invoice</title>
+
+  <style>
+    /*
+      Keep the layout exactly the same.
+      Only changes are the colour scheme and a few subtle surface tones
+      so it reads like a real invoice.
+    */
+
+    @page {
+      size: A4;
+
+      margin: 0;
+      margin-top: 8mm;
+      margin-bottom: 10mm;
+
+      /* Professional light background */
+      background:
+        radial-gradient(1100px 650px at 12% 8%, rgba(47, 85, 151, .08), transparent 62%),
+        radial-gradient(900px 600px at 92% 18%, rgba(20, 184, 166, .06), transparent 55%),
+        linear-gradient(180deg, #f7f9fc, #eef2f7 70%);
+
+      @bottom-left {
+        content: "Generated for rendering tests";
+        font-size: 9pt;
+        color: #6b7280;
+      }
+      @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-size: 9pt;
+        color: #6b7280;
+      }
+    }
+
+    :root{
+      --page-pad: 16mm;
+      --footer-safe: 12mm;
+
+      /* New professional palette */
+      --ink: #111827;         /* near-black */
+      --muted: #4b5563;       /* slate */
+      --muted2: #6b7280;      /* lighter slate */
+      --accent: #1f4e79;      /* navy */
+      --accent2: #0f766e;     /* teal */
+      --danger: #b91c1c;      /* red */
+
+      --surface: rgba(255,255,255,.92);
+      --surface-2: rgba(255,255,255,.82);
+      --border: rgba(17,24,39,.12);
+      --border-soft: rgba(17,24,39,.08);
+      --shadow: rgba(17,24,39,.08);
+
+      --radius: 16px;
+      --gap: 12px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body{
+      font-family: var(--sans);
+      color: var(--ink);
+      background: transparent;
+    }
+
+    .page{
+      padding: var(--page-pad);
+      padding-bottom: calc(var(--page-pad) + var(--footer-safe));
+      min-height: 297mm;
+    }
+
+    .header{
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: var(--gap);
+      align-items: start;
+      margin-bottom: var(--gap);
+    }
+
+    .brand{
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .logo{
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+
+      /* Switched to a subtle corporate gradient */
+      background: linear-gradient(135deg, var(--accent), #2f6fb0);
+      box-shadow: 0 10px 28px var(--shadow);
+    }
+
+    .title h1{
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: .02em;
+      color: var(--ink);
+    }
+    .title p{
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .meta{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      justify-items: end;
+      text-align: right;
+      font-family: var(--mono);
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .chip{
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      width: fit-content;
+      text-align: left;
+      box-shadow: 0 8px 18px var(--shadow);
+    }
+
+    .cards{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--gap);
+      margin-bottom: var(--gap);
+    }
+
+    .card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 14px 20px 14px;
+      box-shadow: 0 12px 26px var(--shadow);
+    }
+
+    .card h3{
+      margin: 0 0 6px;
+      font-size: 12px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: var(--muted2);
+    }
+
+    .kv{
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 6px 10px;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .kv div:nth-child(odd){
+      color: var(--muted2);
+      font-family: var(--mono);
+    }
+    .kv div:nth-child(even){
+      color: var(--ink);
+    }
+
+    .table-card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: var(--gap);
+      box-shadow: 0 16px 34px var(--shadow);
+    }
+
+    .table-head{
+      padding: 12px 14px;
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+
+      /* Professional header strip */
+      background: linear-gradient(135deg, rgba(31,78,121,.10), rgba(15,118,110,.06));
+      border-bottom: 1px solid var(--border);
+    }
+    .table-head strong{
+      font-size: 13px;
+      letter-spacing: .04em;
+      color: var(--ink);
+    }
+    .badge{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px dashed rgba(31,78,121,.35);
+      background: rgba(31,78,121,.04);
+    }
+
+    table{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      background: transparent;
+    }
+
+    thead { display: table-header-group; }
+    tfoot { display: table-footer-group; }
+
+    thead th{
+      text-align: left;
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(17,24,39,.03);
+    }
+
+    tbody td{
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-soft);
+      vertical-align: top;
+      color: var(--ink);
+    }
+
+    tbody tr:nth-child(2n){
+      background: rgba(17,24,39,.02);
+    }
+
+    tr, td, th { break-inside: avoid; }
+
+    .desc{
+      display:flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .desc small{
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .numbers{ text-align:right; font-family: var(--mono); }
+    .right{ text-align:right; }
+
+    .totals{
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: var(--gap);
+      align-items: start;
+    }
+
+    .notes{
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: 0 12px 26px var(--shadow);
+    }
+    .notes h4{
+      margin:0 0 8px;
+      font-size: 13px;
+      letter-spacing:.06em;
+      color: var(--ink);
+    }
+    .notes ul{
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+    .notes li{ margin: 6px 0; }
+
+    .summary{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: 0 12px 26px var(--shadow);
+    }
+    .summary .row{
+      display:flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-soft);
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .summary .row strong{ color: var(--ink); }
+    .summary .row:last-child{ border-bottom: 0; }
+
+    .summary .grand{
+      margin-top: 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      display:flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-family: var(--mono);
+    }
+    .summary .grand strong{
+      font-size: 16px;
+      color: var(--ink);
+    }
+    .summary .grand span{
+      color: var(--accent);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="header">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="title">
+          <h1>Invoice</h1>
+          <p>Thank you for your business</p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <div class="chip">INV: 2025-12-18-0042</div>
+        <div class="chip">Due: 2026-01-07</div>
+        <div class="chip">Currency: GBP</div>
+        <div class="chip">Terms: Net 20</div>
+      </div>
+    </section>
+
+    <section class="cards">
+      <div class="card">
+        <h3>Bill to</h3>
+        <div class="kv">
+          <div>Name</div><div>Your Business Ltd</div>
+          <div>Email</div><div>billing@example.com</div>
+          <div>Address</div><div>1 Example Street, London, UK</div>
+          <div>VAT</div><div>GB 123 4567 89</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>From</h3>
+        <div class="kv">
+          <div>Name</div><div>GeneratePDFs</div>
+          <div>Email</div><div>info@generatepdfs.com</div>
+          <div>Address</div><div>1 Example Street, Manchester, UK</div>
+          <div>Ref</div><div>Account 001337</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="table-card">
+      <div class="table-head">
+        <strong>Line items</strong>
+        <span class="badge">Rows: 40</span>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 46%;">Description</th>
+            <th class="right" style="width: 10%;">Qty</th>
+            <th class="right" style="width: 16%;">Unit</th>
+            <th class="right" style="width: 14%;">Tax</th>
+            <th class="right" style="width: 14%;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 01</strong><small>Uses: grid, flex, gradients, mm padding</small></div></td><td class="numbers">2</td><td class="numbers">£23.20</td><td class="numbers">£9.28</td><td class="numbers">£55.68</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 02</strong><small>Longer description to test wrapping and row height</small></div></td><td class="numbers">3</td><td class="numbers">£26.45</td><td class="numbers">£15.87</td><td class="numbers">£95.22</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 03</strong><small>Word probe: antidisestablishmentarianism</small></div></td><td class="numbers">4</td><td class="numbers">£29.70</td><td class="numbers">£23.76</td><td class="numbers">£142.56</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 04</strong><small>Spacing probe: 0 1 2 3 4 5 6 7 8 9</small></div></td><td class="numbers">5</td><td class="numbers">£32.95</td><td class="numbers">£32.95</td><td class="numbers">£197.70</td></tr>
+
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 05</strong><small>Mixed glyphs: £ € $ ¥</small></div></td><td class="numbers">1</td><td class="numbers">£22.10</td><td class="numbers">£4.42</td><td class="numbers">£26.52</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 06</strong><small>Border radius clipping on table container</small></div></td><td class="numbers">2</td><td class="numbers">£25.35</td><td class="numbers">£10.14</td><td class="numbers">£60.84</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 07</strong><small>Long key: asset_0007_012345678901234567890123456789012345</small></div></td><td class="numbers">3</td><td class="numbers">£28.60</td><td class="numbers">£17.16</td><td class="numbers">£102.96</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 08</strong><small>Check page break behaviour when table grows</small></div></td><td class="numbers">4</td><td class="numbers">£31.85</td><td class="numbers">£25.48</td><td class="numbers">£152.88</td></tr>
+
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 09</strong><small>Row 09</small></div></td><td class="numbers">2</td><td class="numbers">£24.10</td><td class="numbers">£9.64</td><td class="numbers">£57.84</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 10</strong><small>Row 10</small></div></td><td class="numbers">3</td><td class="numbers">£27.35</td><td class="numbers">£16.41</td><td class="numbers">£98.46</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 11</strong><small>Row 11</small></div></td><td class="numbers">4</td><td class="numbers">£30.60</td><td class="numbers">£24.48</td><td class="numbers">£146.88</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 12</strong><small>Row 12</small></div></td><td class="numbers">5</td><td class="numbers">£33.85</td><td class="numbers">£33.85</td><td class="numbers">£203.10</td></tr>
+
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 13</strong><small>Row 13</small></div></td><td class="numbers">1</td><td class="numbers">£23.00</td><td class="numbers">£4.60</td><td class="numbers">£27.60</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 14</strong><small>Row 14</small></div></td><td class="numbers">2</td><td class="numbers">£26.25</td><td class="numbers">£10.50</td><td class="numbers">£63.00</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 15</strong><small>Row 15</small></div></td><td class="numbers">3</td><td class="numbers">£29.50</td><td class="numbers">£17.70</td><td class="numbers">£106.20</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 16</strong><small>Row 16</small></div></td><td class="numbers">4</td><td class="numbers">£32.75</td><td class="numbers">£26.20</td><td class="numbers">£157.20</td></tr>
+
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 17</strong><small>Row 17</small></div></td><td class="numbers">5</td><td class="numbers">£36.00</td><td class="numbers">£36.00</td><td class="numbers">£216.00</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 18</strong><small>Row 18</small></div></td><td class="numbers">1</td><td class="numbers">£24.90</td><td class="numbers">£4.98</td><td class="numbers">£29.88</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 19</strong><small>Row 19</small></div></td><td class="numbers">2</td><td class="numbers">£28.15</td><td class="numbers">£11.26</td><td class="numbers">£67.56</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 20</strong><small>Row 20</small></div></td><td class="numbers">3</td><td class="numbers">£31.40</td><td class="numbers">£18.84</td><td class="numbers">£113.04</td></tr>
+
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 21</strong><small>Row 21</small></div></td><td class="numbers">4</td><td class="numbers">£34.65</td><td class="numbers">£27.72</td><td class="numbers">£166.32</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 22</strong><small>Row 22</small></div></td><td class="numbers">5</td><td class="numbers">£37.90</td><td class="numbers">£37.90</td><td class="numbers">£227.40</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 23</strong><small>Row 23</small></div></td><td class="numbers">1</td><td class="numbers">£25.80</td><td class="numbers">£5.16</td><td class="numbers">£30.96</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 24</strong><small>Row 24</small></div></td><td class="numbers">2</td><td class="numbers">£29.05</td><td class="numbers">£11.62</td><td class="numbers">£69.72</td></tr>
+
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 25</strong><small>Row 25</small></div></td><td class="numbers">3</td><td class="numbers">£32.30</td><td class="numbers">£19.38</td><td class="numbers">£116.28</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 26</strong><small>Row 26</small></div></td><td class="numbers">4</td><td class="numbers">£35.55</td><td class="numbers">£28.44</td><td class="numbers">£170.64</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 27</strong><small>Row 27</small></div></td><td class="numbers">5</td><td class="numbers">£38.80</td><td class="numbers">£38.80</td><td class="numbers">£232.80</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 28</strong><small>Row 28</small></div></td><td class="numbers">1</td><td class="numbers">£26.70</td><td class="numbers">£5.34</td><td class="numbers">£32.04</td></tr>
+
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 29</strong><small>Row 29</small></div></td><td class="numbers">2</td><td class="numbers">£29.95</td><td class="numbers">£11.98</td><td class="numbers">£71.88</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 30</strong><small>Row 30</small></div></td><td class="numbers">3</td><td class="numbers">£33.20</td><td class="numbers">£19.92</td><td class="numbers">£119.52</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 31</strong><small>Row 31</small></div></td><td class="numbers">4</td><td class="numbers">£36.45</td><td class="numbers">£29.16</td><td class="numbers">£175. (probe)</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 32</strong><small>Row 32</small></div></td><td class="numbers">5</td><td class="numbers">£39.70</td><td class="numbers">£39.70</td><td class="numbers">£238.20</td></tr>
+
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 33</strong><small>Row 33</small></div></td><td class="numbers">1</td><td class="numbers">£27.60</td><td class="numbers">£5.52</td><td class="numbers">£33.12</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 34</strong><small>Row 34</small></div></td><td class="numbers">2</td><td class="numbers">£30.85</td><td class="numbers">£12.34</td><td class="numbers">£74.04</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 35</strong><small>Row 35</small></div></td><td class="numbers">3</td><td class="numbers">£34.10</td><td class="numbers">£20.46</td><td class="numbers">£122.76</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 36</strong><small>Row 36</small></div></td><td class="numbers">4</td><td class="numbers">£37.35</td><td class="numbers">£29.88</td><td class="numbers">£179.28</td></tr>
+
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 37</strong><small>Row 37</small></div></td><td class="numbers">5</td><td class="numbers">£40.60</td><td class="numbers">£40.60</td><td class="numbers">£243.60</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 38</strong><small>Row 38</small></div></td><td class="numbers">1</td><td class="numbers">£28.50</td><td class="numbers">£5.70</td><td class="numbers">£34.20</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 39</strong><small>Row 39</small></div></td><td class="numbers">2</td><td class="numbers">£31.75</td><td class="numbers">£12.70</td><td class="numbers">£76.20</td></tr>
+          <tr><td><div class="desc"><strong>HTML to PDF generation batch 40</strong><small>Row 40</small></div></td><td class="numbers">3</td><td class="numbers">£35.00</td><td class="numbers">£21.00</td><td class="numbers">£126.00</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="totals">
+      <div class="notes">
+        <h4>Notes</h4>
+        <ul>
+          <li>Payment due within 20 days of invoice date.</li>
+          <li>Please include the invoice number with your payment.</li>
+          <li>Bank transfer preferred.</li>
+        </ul>
+      </div>
+
+      <div class="summary">
+        <div class="row"><span>Subtotal</span><strong>£3,298.40</strong></div>
+        <div class="row"><span>VAT (20%)</span><strong>£659.68</strong></div>
+        <div class="row"><span>Credits</span><strong style="color: var(--danger);">-£0.00</strong></div>
+        <div class="grand"><strong>Total</strong><span>£3,958.08</span></div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
