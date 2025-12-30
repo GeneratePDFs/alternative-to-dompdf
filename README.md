@@ -1,2 +1,3 @@
-# invoice-grid--examples
-Example HTML invoice using grids and other modern CSS techniques
+# Alternative to DOMPDF
+
+Repository showcasing GeneratePDFs as an alternative to DOMPDF
