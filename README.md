@@ -58,18 +58,6 @@ Instead of adapting your designs to PDF limitations, GeneratePDFs adapts to your
 
 ---
 
-## When DOMPDF might still be enough
-
-DOMPDF can still be suitable if:
-
-- Your layouts are simple and table based
-- You are generating basic documents without complex styling
-- Pixel perfect rendering is not critical
-
-If you are building invoices, reports, dashboards, or customer facing documents with modern layouts, a more capable HTML to PDF solution is usually required.
-
----
-
 ## Learn more
 
 If you are searching for an **alternative to dompdf** that supports modern HTML and CSS, you can explore GeneratePDFs here:
